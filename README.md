@@ -1,3 +1,14 @@
+# Holistic History
+
+The holistic history website proposes a different approach to history, searching for a holistic views of past events that shaped our world. Interconnection and synthesis between science and humanities, technology and music, and other fields, brought forward humanity.
+
+# DB diagram (temporary)
+
+The DBML file (schema.dbml) to create the DB diagram (with [dbdiagram.io](https://dbdiagram.io/d)) is created automatically at every schema generation (before creating migrations).
+This is temporary.
+
+![DB diagram](DB_diagram.png)
+
 # Remix Indie Stack
 
 ![The Remix Indie Stack](https://repository-images.githubusercontent.com/465928257/a241fa49-bd4d-485a-a2a5-5cb8e4ee0abf)

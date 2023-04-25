@@ -7,6 +7,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 model User {
   id    String @id @default(cuid())
   email String @unique
@@ -16,6 +20,12 @@ model User {
 
   password Password?
   notes    Note[]
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  notes Note[]
 }
 
 model Password {
@@ -35,4 +45,8 @@ model Note {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+
+  tags           Tag[]
+  eventDateStart DateTime?
+  eventDateEnd   DateTime?
 }
