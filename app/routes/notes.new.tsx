@@ -12,22 +12,34 @@ export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
   const title = formData.get("title");
   const body = formData.get("body");
+  const tags = formData.get("tags");
 
   if (typeof title !== "string" || title.length === 0) {
     return json(
-      { errors: { body: null, title: "Title is required" } },
+      { errors: { body: null, title: "Title is required", tags: null } },
       { status: 400 }
     );
   }
 
   if (typeof body !== "string" || body.length === 0) {
     return json(
-      { errors: { body: "Body is required", title: null } },
+      { errors: { body: "Body is required", title: null, tags: null } },
       { status: 400 }
     );
   }
 
-  const note = await createNote({ body, title, userId });
+  if (typeof tags !== "string" || tags.length === 0) {
+    return json(
+      { errors: { body: null, title: null, tags: "Tags are required" } },
+      { status: 400 }
+    );
+  }
+
+  const tagsArray = tags.split(",").map((tag) => tag.trim());
+  const tagObjects = tagsArray.map((name) => ({ name: name.toString() }));
+
+
+  const note = await createNote({ body, title, tags: tagObjects, userId });
 
   return redirect(`/notes/${note.id}`);
 };
@@ -36,12 +48,15 @@ export default function NewNotePage() {
   const actionData = useActionData<typeof action>();
   const titleRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const tagsRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (actionData?.errors?.title) {
       titleRef.current?.focus();
     } else if (actionData?.errors?.body) {
       bodyRef.current?.focus();
+    } else if (actionData?.errors?.tags) {
+      tagsRef.current?.focus();
     }
   }, [actionData]);
 
@@ -81,6 +96,27 @@ export default function NewNotePage() {
           <textarea
             ref={bodyRef}
             name="body"
+            rows={8}
+            className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
+            aria-invalid={actionData?.errors?.body ? true : undefined}
+            aria-errormessage={
+              actionData?.errors?.body ? "body-error" : undefined
+            }
+          />
+        </label>
+        {actionData?.errors?.body ? (
+          <div className="pt-1 text-red-700" id="body-error">
+            {actionData.errors.body}
+          </div>
+        ) : null}
+      </div>
+
+      <div>
+        <label className="flex w-full flex-col gap-1">
+          <span>Tags (comma separated): </span>
+          <textarea
+            ref={tagsRef}
+            name="tags"
             rows={8}
             className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
             aria-invalid={actionData?.errors?.body ? true : undefined}

@@ -12,7 +12,7 @@ Table User {
 }
 
 Table Tag {
-  id String [pk]
+  id Int [pk, increment]
   name String [unique, not null]
   notes Note [not null]
 }
