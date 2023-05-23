@@ -8,37 +8,36 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { deleteNode, getNode } from "~/models/note.server";
+import { deleteNode, getNode } from "~/models/node.server";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  console.log("params", params);
-  invariant(params.noteId, "noteId not found");
+  invariant(params.nodeId, "nodeId not found");
 
-  const note = await getNode({ id: Number(params.noteId), userId });
-  if (!note) {
+  const node = await getNode({ id: Number(params.nodeId), userId });
+  if (!node) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json({ note });
+  return json({ node });
 };
 
 export const action = async ({ params, request }: ActionArgs) => {
   const userId = await requireUserId(request);
-  invariant(params.noteId, "noteId not found");
+  invariant(params.nodeId, "nodeId not found");
 
-  await deleteNode({ id: Number(params.noteId), userId });
+  await deleteNode({ id: Number(params.nodeId), userId });
 
-  return redirect("/notes");
+  return redirect("/nodes");
 };
 
-export default function NoteDetailsPage() {
+export default function NodeDetailsPage() {
   const data = useLoaderData<typeof loader>();
 
   return (
     <div>
-      <h3 className="text-2xl font-bold">{data.note.title}</h3>
-      <p className="py-6">{data.note.body}</p>
+      <h3 className="text-2xl font-bold">{data.node.title}</h3>
+      <p className="py-6">{data.node.body}</p>
       <hr className="my-4" />
       <Form method="post">
         <button
@@ -64,7 +63,7 @@ export function ErrorBoundary() {
   }
 
   if (error.status === 404) {
-    return <div>Note not found</div>;
+    return <div>Node not found</div>;
   }
 
   return <div>An unexpected error occurred: {error.statusText}</div>;

@@ -50,7 +50,6 @@ export async function createNode({
   }
 
   const tagIds = [...existingTags, ...newTags].map((tag) => ({
-    // id: tag.id,
     name: tag.name,
   }));
 
@@ -61,8 +60,6 @@ export async function createNode({
       tags: {
         connect: tagIds.map((tag) => ({
           name: tag.name,
-          // id: tag.id,
-          // name: tagg.name,
         })),
       },
       user: {
