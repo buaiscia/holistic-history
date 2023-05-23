@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
-import { createNote } from "~/models/note.server";
+import { createNode } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
 
 export const action = async ({ request }: ActionArgs) => {
@@ -36,10 +36,11 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   const tagsArray = tags.split(",").map((tag) => tag.trim());
-  const tagObjects = tagsArray.map((name) => ({ name: name.toString() }));
+  const tagObjects = tagsArray.map((name, index) => ({
+    name: name.toString(),
+  }));
 
-
-  const note = await createNote({ body, title, tags: tagObjects, userId });
+  const note = await createNode({ body, title, tags: tagObjects, userId });
 
   return redirect(`/notes/${note.id}`);
 };

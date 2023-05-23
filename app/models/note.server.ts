@@ -1,42 +1,67 @@
-import type { User, Note } from "@prisma/client";
+import type { User, Node, Tag } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
-export function getNote({
+export function getNode({
   id,
   userId,
-}: Pick<Note, "id"> & {
+}: Pick<Node, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.note.findFirst({
+  return prisma.node.findFirst({
     select: { id: true, body: true, title: true, tags: true },
     where: { id, userId },
   });
 }
 
-export function getNoteListItems({ userId }: { userId: User["id"] }) {
-  return prisma.note.findMany({
+export function getNodeListItems({ userId }: { userId: User["id"] }) {
+  return prisma.node.findMany({
     where: { userId },
     select: { id: true, title: true },
     orderBy: { updatedAt: "desc" },
   });
 }
 
-export function createNote({
+export async function createNode({
   body,
   title,
   tags,
   userId,
-}: Pick<Note, "body" | "title" | "tags"> & {
+}: Pick<Node, "body" | "title"> & {
+  tags: Tag[];
   userId: User["id"];
 }) {
-  
-  return prisma.note.create({
+  const existingTags = await prisma.tag.findMany({
+    where: {
+      name: {
+        in: tags.map((tag) => tag.name),
+      },
+    },
+  });
+
+  const newTags = tags.filter(
+    (tag) => !existingTags.some((existingTag) => existingTag.name === tag.name)
+  );
+
+  if (newTags.length > 0) {
+    newTags.forEach(async (tag) => {
+      await prisma.tag.create({ data: tag });
+    });
+  }
+
+  const tagIds = [...existingTags, ...newTags].map((tag) => ({
+    name: tag.name,
+  }));
+
+  return prisma.node.create({
     data: {
       title,
       body,
       tags: {
-        create: tags,
+        connect: tagIds.map((tagg) => ({
+          name: tagg.name,
+          // name: tagg.name,
+        })),
       },
       user: {
         connect: {
@@ -47,11 +72,11 @@ export function createNote({
   });
 }
 
-export function deleteNote({
+export function deleteNode({
   id,
   userId,
-}: Pick<Note, "id"> & { userId: User["id"] }) {
-  return prisma.note.deleteMany({
+}: Pick<Node, "id"> & { userId: User["id"] }) {
+  return prisma.node.deleteMany({
     where: { id, userId },
   });
 }
