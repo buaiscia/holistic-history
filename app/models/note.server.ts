@@ -28,7 +28,7 @@ export async function createNode({
   tags,
   userId,
 }: Pick<Node, "body" | "title"> & {
-  tags: Tag[];
+  tags: Pick<Tag, "name">[];
   userId: User["id"];
 }) {
   const existingTags = await prisma.tag.findMany({
@@ -50,6 +50,7 @@ export async function createNode({
   }
 
   const tagIds = [...existingTags, ...newTags].map((tag) => ({
+    // id: tag.id,
     name: tag.name,
   }));
 
@@ -58,8 +59,9 @@ export async function createNode({
       title,
       body,
       tags: {
-        connect: tagIds.map((tagg) => ({
-          name: tagg.name,
+        connect: tagIds.map((tag) => ({
+          name: tag.name,
+          // id: tag.id,
           // name: tagg.name,
         })),
       },
