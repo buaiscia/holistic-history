@@ -1,4 +1,4 @@
-import type { User, Node, Tag } from "@prisma/client";
+import type { User, Node, Tag, TimePeriod } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
@@ -26,9 +26,11 @@ export async function createNode({
   body,
   title,
   tags,
+  timePeriodId,
   userId,
 }: Pick<Node, "body" | "title"> & {
   tags: Pick<Tag, "name">[];
+  timePeriodId: string;
   userId: User["id"];
 }) {
   const existingTags = await prisma.tag.findMany({
@@ -61,6 +63,11 @@ export async function createNode({
         connect: tagIds.map((tag) => ({
           name: tag.name,
         })),
+      },
+      timePeriods: {
+        connect: {
+          id: Number(timePeriodId),
+        },
       },
       user: {
         connect: {
