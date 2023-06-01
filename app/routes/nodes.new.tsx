@@ -2,9 +2,13 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
+import {
+  getGeographicalAreaListItems,
+  getModernCountryListItems,
+} from "~/models/areas";
 
 import { createNode } from "~/models/node.server";
-import { getTimePeriodListItems } from "~/models/timePeriod";
+import { getTimePeriodListItems } from "~/models/timePeriod.server";
 import { requireUserId } from "~/session.server";
 
 export const action = async ({ request }: ActionArgs) => {
@@ -15,8 +19,8 @@ export const action = async ({ request }: ActionArgs) => {
   const body = formData.get("body");
   const tags = formData.get("tags");
   const timePeriods = formData.get("timePeriods");
-
-  console.log("timePeriods", typeof timePeriods);
+  const geographicalArea = formData.get("geographicalArea");
+  const modernCountry = formData.get("modernCountry");
 
   if (typeof title !== "string" || title.length === 0) {
     return json(
@@ -26,6 +30,8 @@ export const action = async ({ request }: ActionArgs) => {
           title: "Title is required",
           tags: null,
           timePeriods: null,
+          geographicalArea: null,
+          modernCountry: null,
         },
       },
       { status: 400 }
@@ -40,6 +46,8 @@ export const action = async ({ request }: ActionArgs) => {
           title: null,
           tags: null,
           timePeriods: null,
+          geographicalArea: null,
+          modernCountry: null,
         },
       },
       { status: 400 }
@@ -54,6 +62,8 @@ export const action = async ({ request }: ActionArgs) => {
           title: null,
           tags: "Tags are required",
           timePeriods: null,
+          geographicalArea: null,
+          modernCountry: null,
         },
       },
       { status: 400 }
@@ -68,6 +78,40 @@ export const action = async ({ request }: ActionArgs) => {
           title: null,
           tags: null,
           timePeriods: "Time period is required",
+          geographicalArea: null,
+          modernCountry: null,
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  if (typeof geographicalArea !== "string" || geographicalArea.length === 0) {
+    return json(
+      {
+        errors: {
+          body: null,
+          title: null,
+          tags: null,
+          timePeriods: null,
+          geographicalArea: "Geographical area is required",
+          modernCountry: null,
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  if (typeof modernCountry !== "string" || modernCountry.length === 0) {
+    return json(
+      {
+        errors: {
+          body: null,
+          title: null,
+          tags: null,
+          timePeriods: null,
+          geographicalArea: null,
+          modernCountry: "Modern country is required",
         },
       },
       { status: 400 }
@@ -79,16 +123,13 @@ export const action = async ({ request }: ActionArgs) => {
     name: name.toString(),
   }));
 
-  // const timePeriodsArray = timePeriods.split(",").map((timePeriod) => timePeriod.trim());
-  // const timePeriodsObj = timePeriodsArray.map((name, index) => ({
-  //   name: name.toString(),
-  // }));
-
   const node = await createNode({
     body,
     title,
     tags: tagObjects,
     timePeriodId: timePeriods,
+    geographicalAreaId: geographicalArea,
+    modernCountryId: modernCountry,
     userId,
   });
 
@@ -97,7 +138,14 @@ export const action = async ({ request }: ActionArgs) => {
 
 export const loader = async ({ request }: LoaderArgs) => {
   const timePeriodsListItems = await getTimePeriodListItems();
-  return json({ timePeriodsListItems });
+  const geographicalAreasListItems = await getGeographicalAreaListItems();
+  const modernCountriesListItems = await getModernCountryListItems();
+
+  return json({
+    timePeriodsListItems,
+    geographicalAreasListItems,
+    modernCountriesListItems,
+  });
 };
 
 export default function NewNodePage() {
@@ -108,6 +156,8 @@ export default function NewNodePage() {
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const tagsRef = useRef<HTMLTextAreaElement>(null);
   const timePeriodsRef = useRef<HTMLSelectElement>(null);
+  const geographicalAreaRef = useRef<HTMLSelectElement>(null);
+  const modernCountryRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
     if (actionData?.errors?.title) {
@@ -118,6 +168,10 @@ export default function NewNodePage() {
       tagsRef.current?.focus();
     } else if (actionData?.errors?.timePeriods) {
       timePeriodsRef.current?.focus();
+    } else if (actionData?.errors?.geographicalArea) {
+      geographicalAreaRef.current?.focus();
+    } else if (actionData?.errors?.modernCountry) {
+      modernCountryRef.current?.focus();
     }
   }, [actionData]);
 
@@ -215,6 +269,64 @@ export default function NewNodePage() {
         {actionData?.errors?.timePeriods ? (
           <div className="pt-1 text-red-700" id="timePeriods-error">
             {actionData.errors.timePeriods}
+          </div>
+        ) : null}
+      </div>
+
+      <div>
+        <label className="flex w-full flex-col gap-1">
+          <span>Geographical Area: </span>
+          <select
+            ref={timePeriodsRef}
+            name="geographicalArea"
+            className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
+            aria-invalid={
+              actionData?.errors?.geographicalArea ? true : undefined
+            }
+            aria-errormessage={
+              actionData?.errors?.geographicalArea
+                ? "geographicalArea-error"
+                : undefined
+            }
+          >
+            {data.geographicalAreasListItems.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {actionData?.errors?.geographicalArea ? (
+          <div className="pt-1 text-red-700" id="timePeriods-error">
+            {actionData.errors.geographicalArea}
+          </div>
+        ) : null}
+      </div>
+
+      <div>
+        <label className="flex w-full flex-col gap-1">
+          <span>Modern Country Correspondence: </span>
+          <select
+            ref={timePeriodsRef}
+            name="modernCountry"
+            className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
+            aria-invalid={actionData?.errors?.modernCountry ? true : undefined}
+            aria-errormessage={
+              actionData?.errors?.modernCountry
+                ? "modernCountry-error"
+                : undefined
+            }
+          >
+            {data.modernCountriesListItems.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {actionData?.errors?.modernCountry ? (
+          <div className="pt-1 text-red-700" id="timePeriods-error">
+            {actionData.errors.modernCountry}
           </div>
         ) : null}
       </div>

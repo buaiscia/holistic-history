@@ -27,10 +27,14 @@ export async function createNode({
   title,
   tags,
   timePeriodId,
+  geographicalAreaId,
+  modernCountryId,
   userId,
 }: Pick<Node, "body" | "title"> & {
   tags: Pick<Tag, "name">[];
   timePeriodId: string;
+  geographicalAreaId: string;
+  modernCountryId?: string;
   userId: User["id"];
 }) {
   const existingTags = await prisma.tag.findMany({
@@ -67,6 +71,16 @@ export async function createNode({
       timePeriods: {
         connect: {
           id: Number(timePeriodId),
+        },
+      },
+      areas: {
+        connect: {
+          id: Number(geographicalAreaId),
+        },
+      },
+      countries: {
+        connect: {
+          id: Number(modernCountryId),
         },
       },
       user: {
