@@ -48,12 +48,36 @@ model TimePeriod {
   nodes Node[]
 }
 
+model GeographicalArea {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  nodes Node[]
+}
+
+model ModernCountryArea {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  nodes Node[]
+}
+
 model Node {
-  id          Int          @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   title       String
   body        String
   tags        Tag[]
   timePeriods TimePeriod[]
+  areas       GeographicalArea[]
+  countries   ModernCountryArea[]
 
   eventDateStart String?
   eventDateEnd   String?
