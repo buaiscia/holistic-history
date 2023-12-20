@@ -5,6 +5,7 @@
   "scripts": {
    "build": "remix build",
     "dev": "remix dev -c \"npm run dev:serve\"",
+    "prisma": "npx prisma studio",
     "dev:serve": "binode --require ./mocks -- @remix-run/serve:remix-serve ./build/index.js",
     "format": "prettier --write .",
     "format:repo": "npm run format && npm run lint -- --fix",
