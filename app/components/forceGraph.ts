@@ -7,6 +7,7 @@ export default async function ForceGraph({
   links // an iterable of link objects (typically [{source, target}, …])
 }, {
   nodeId = d => d.id, // given d in nodes, returns a unique identifier (string)
+  nodeUrl = d => d.url, // given d in nodes, returns a URL string
   nodeGroup, // given d in nodes, returns an (ordinal) value for color
   nodeGroups, // an array of ordinal values representing the node groups
   nodeTitle, // given d in nodes, a title string
@@ -34,7 +35,10 @@ export default async function ForceGraph({
   // Compute values.
   if (typeof window !== 'undefined') {
 
-    const N = d3.map(nodes, nodeId).map(intern);
+    console.log({ nodes, links });
+
+    const N = d3.map(nodes, nodeId).map(intern)
+    const U = d3.map(nodes, nodeUrl).map(intern);
     const LS = d3.map(links, linkSource).map(intern);
     const LT = d3.map(links, linkTarget).map(intern);
     if (nodeTitle === undefined) nodeTitle = (_, i) => N[i];
@@ -43,9 +47,13 @@ export default async function ForceGraph({
     const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
     const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
 
+    console.log({ N })
+
     // Replace the input nodes and links with mutable objects for the simulation.
-    nodes = d3.map(nodes, (_, i) => ({ id: N[i] }));
+    nodes = d3.map(nodes, (_, i) => ({ id: N[i], url: U[i] }));
     links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
+
+    console.log({ nodes, links });
 
     // Compute default domains.
     if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
@@ -87,7 +95,10 @@ export default async function ForceGraph({
       .attr("stroke-width", nodeStrokeWidth)
       .selectAll("circle")
       .data(nodes)
-      .join("circle")
+      .join("a")
+      .attr("xlink:href", d => d.url)
+      .attr("target", "_blank")
+      .append("circle")
       .attr("r", nodeRadius)
       .call(drag(simulation));
 
