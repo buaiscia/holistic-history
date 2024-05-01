@@ -92,6 +92,9 @@ model Node {
   eventDateEnd   String?
   url            String?
 
+  sourceLinks    Links[]
+  targetLinks    Target[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -102,9 +105,18 @@ model Node {
 model Links {
   id          Int    @id @default(autoincrement())
   sourceId    Int
-  targetId    Int
+  source      Node   @relation(fields: [sourceId], references: [id]) 
+  targets     Target[]
   value       Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Target {
+  id        Int    @id @default(autoincrement())
+  targetId  Int
+  linkId    Int
+  link      Links  @relation(fields: [linkId], references: [id])
+  node      Node   @relation(fields: [targetId], references: [id])
 }
