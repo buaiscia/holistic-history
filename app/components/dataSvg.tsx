@@ -2,20 +2,22 @@ import ForceGraph from './forceGraph'
 
 const data = {
   nodes: [
-    { "id": "Test1", "group": 'One', "url": 'https://www.google.com' },
-    { "id": "Test2", "group": 'Two', "url": 'https://www.google.com' },
-    { "id": "Test3", "group": 'Two', "url": 'https://www.google.com' },
-    { "id": "Test4", "group": 'One', "url": 'https://www.google.com' },
-    { "id": "Test5", "group": 'Three', "url": 'https://www.google.com' },
-
+    { "id": "Writing in Sumer", "group": 'Sumerian Civilization', "field": "Education", "url": 'https://www.google.com' },
+    { "id": "Record Keeping", "group": 'Sumerian Civilization', "field": "Economics", "url": 'https://www.google.com' },
+    { "id": "Clay tokens", "group": 'Sumerian Civilization', "field": "Commerce", "url": 'https://www.google.com' },
+    { "id": "City growth", "group": 'Sumerian Civilization', "field": "Urbanism", "url": 'https://www.google.com' },
+    { "id": "Trading", "group": 'Sumerian Civilization', "field": "Commerce", "url": 'https://www.google.com' },
+    { "id": "Writing in Akkad", "group": 'Akkadian Civilization', "field": "Education", "url": 'https://www.google.com' },
   ],
   links: [
-    { "source": "Test1", "target": "Test2", "value": 1 },
-    { "source": "Test3", "target": "Test1", "value": 1 },
-    { "source": "Test3", "target": "Test2", "value": 1 },
-    { "source": "Test4", "target": "Test3", "value": 1 },
-    { "source": "Test4", "target": "Test5", "value": 1 },
-
+    { "source": "Writing in Sumer", "target": "Record Keeping", "value": 1 },
+    { "source": "Writing in Sumer", "target": "City growth", "value": 1 },
+    { "source": "Record Keeping", "target": "Clay tokens", "value": 1 },
+    { "source": "Record Keeping", "target": "Trading", "value": 1 },
+    { "source": "Clay tokens", "target": "Trading", "value": 1 },
+    { "source": "City growth", "target": "Trading", "value": 1 },
+    { "source": "Trading", "target": "Writing in Akkad", "value": 1 },
+    { "source": "Writing in Sumer", "target": "Writing in Akkad", "value": 1 },
   ]
 };
 
@@ -24,7 +26,7 @@ const data = {
 export const chart = ForceGraph(data, {
   nodeId: d => d.id,
   nodeGroup: d => d.group,
-  nodeTitle: d => `${d.id}\n${d.group}`,
+  nodeTitle: d => `${d.id}\n${d.group}\n${d.field}`,
   linkStrokeWidth: l => Math.sqrt(l.value),
   width: 600,
   height: 600,

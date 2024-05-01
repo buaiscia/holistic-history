@@ -47,7 +47,7 @@ export default async function ForceGraph({
     const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
     const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
 
-    console.log({ N })
+    // console.log({ N })
 
     // Replace the input nodes and links with mutable objects for the simulation.
     nodes = d3.map(nodes, (_, i) => ({ id: N[i], url: U[i] }));
@@ -88,6 +88,13 @@ export default async function ForceGraph({
       .data(links)
       .join("line");
 
+    const changeLinkStyle = (id: string) => {
+      link.style("stroke", l => {
+        console.log({ id })
+        return (l.source.id === id ? 'red' : null)
+      })
+    }
+
     const node = svg.append("g")
       .attr("fill", nodeFill)
       .attr("stroke", nodeStroke)
@@ -100,7 +107,37 @@ export default async function ForceGraph({
       .attr("target", "_blank")
       .append("circle")
       .attr("r", nodeRadius)
-      .call(drag(simulation));
+      .call(drag(simulation))
+      .on('mouseover', function (d, i) {
+        d3.select(this)
+          .style('fill', 'red')
+          .attr('r', 10);
+        console.log({ d: d.target.__data__.id })
+        link.each(link => {
+          // if (link.source.id === d.target.__data__.id || link.target.id === d.id) {
+          //   d3.select(link).style('stroke', 'red')
+          // }
+          // console.log({ link, d })
+          // if (link.source?.id === d.target?.__data__.id) {
+          //   d3.select(link).style('stroke', 'red')
+          // }
+          // if (link.source.id === 'Writing in Sumer') {
+          // console.log({ link })
+          // link.style('stroke', 'red')
+          changeLinkStyle(d.target.__data__.id)
+          // }
+
+        })
+        // link.style('stroke', l => {
+        //   return (l.source.id === d.id || l.target.id === d.id ? 'red' : 'black')
+
+      })
+      .on('mouseout', function (d, i) {
+        d3.select(this)
+          .style('fill', '#0cf241')
+          .attr('r', 5)
+        link.style('stroke', '#999');
+      })
 
     if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
     if (L) link.attr("stroke", ({ index: i }) => L[i]);
