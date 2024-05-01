@@ -17,7 +17,13 @@ Table Password {
   userId String [unique, not null]
 }
 
-Table Tag {
+Table Group {
+  id Int [pk, increment]
+  name String [unique, not null]
+  nodes Node [not null]
+}
+
+Table Field {
   id Int [pk, increment]
   name String [unique, not null]
   nodes Node [not null]
@@ -56,16 +62,27 @@ Table Node {
   id Int [pk, increment]
   title String [not null]
   body String [not null]
-  tags Tag [not null]
+  group Group [not null]
+  field Field [not null]
   timePeriods TimePeriod [not null]
   areas GeographicalArea [not null]
   countries ModernCountryArea [not null]
   eventDateStart String
   eventDateEnd String
+  url String
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   user User [not null]
   userId String [not null]
+}
+
+Table Links {
+  id Int [pk, increment]
+  sourceId Int [not null]
+  targetId Int [not null]
+  value Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
 }
 
 Ref: Password.userId - User.id [delete: Cascade]

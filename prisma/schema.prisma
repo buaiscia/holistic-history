@@ -29,7 +29,13 @@ model Password {
   userId String @unique
 }
 
-model Tag {
+model Group {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  nodes Node[]
+}
+
+model Field {
   id    Int    @id @default(autoincrement())
   name  String @unique
   nodes Node[]
@@ -74,17 +80,31 @@ model Node {
   id          Int                 @id @default(autoincrement())
   title       String
   body        String
-  tags        Tag[]
+  // tags        Tag[]
+  group       Group[]
+  field       Field[]
+
   timePeriods TimePeriod[]
   areas       GeographicalArea[]
   countries   ModernCountryArea[]
 
   eventDateStart String?
   eventDateEnd   String?
+  url            String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+}
+
+model Links {
+  id          Int    @id @default(autoincrement())
+  sourceId    Int
+  targetId    Int
+  value       Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
